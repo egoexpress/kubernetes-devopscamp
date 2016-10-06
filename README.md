@@ -167,7 +167,8 @@ Port:                   <unset> 80/TCP
 NodePort:               <unset> 31000/TCP
 Endpoints:              10.40.0.1:80,10.40.0.2:80
 Session Affinity:       None
-No events.root@kubecurl http://108.59.81.224:31000
+No events.
+root@kube-adm-1:~# curl http://108.59.81.224:31000
 <h2>
 This is Nginx running on
 devops-nginx-2330576289-1gepk:80
