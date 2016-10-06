@@ -147,6 +147,38 @@ devops-nginx-2330576289-1gepk:80
 
 Now that we have just two pods running we want more. Scale up! Use _scripts/scale_nginx.sh_ to add two more pods. They will be automatically added to the service created above so repeating the _curl_ command from before should show that requests will be routed to the new pods as well. Use _scripts/show_nginx.sh_ to see all the details of your running deployment and service.
 
+## Setting a fixed port
+
+As you may have noticed the port for the service created above (32025 in the example) is chosen randomly (within the range of 30000-32767). If you want to have a fixed port (that must also be within this range) you have to use a service configuration file as kubectl doesn't have an option for that. Use _kubectl create_ with the file _deploy/devops-nginx-svc.yaml_ to set up the service on port 31000.
+
+```shell
+root@kube-adm-1:~# kubectl delete svc devops-nginx
+service "devops-nginx" deleted
+root@kube-adm-1:~# kubectl create -f deploy/devops-nginx-svc.yaml 
+service "devops-nginx" created
+root@kube-adm-1:~# kubectl describe svc devops-nginx
+Name:                   devops-nginx
+Namespace:              default
+Labels:                 name=devops-nginx
+Selector:               run=devops-nginx
+Type:                   NodePort
+IP:                     100.73.57.228
+Port:                   <unset> 80/TCP
+NodePort:               <unset> 31000/TCP
+Endpoints:              10.40.0.1:80,10.40.0.2:80
+Session Affinity:       None
+No events.root@kubecurl http://108.59.81.224:31000
+<h2>
+This is Nginx running on
+devops-nginx-2330576289-1gepk:80
+</h2>
+root@kube-adm-1:~# curl http://108.59.81.224:31000
+<h2>
+This is Nginx running on
+devops-nginx-2330576289-t7vjj:80
+</h2>
+```
+
 ## Tearing down the stage
 
 If you want to get rid of the cluster you set up using VMs on GCE, just execute _delete_instances.sh_ to tear down the nodes. If you used your own nodes use _scripts/deinstall_kubernetes.sh_ to get rid of Kubernetes. Warning: This deinstalls Docker itself as well, so make sure you want that. Otherwise change the script accordingly.
