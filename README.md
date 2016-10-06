@@ -19,9 +19,50 @@ Login to each of the 3 hosts and run _scripts/install_packages.sh_ to install th
 
 On the master (**kube-adm-1**) run _scripts/init_master.sh_ to initialize the Kubernetes master. Check the output for the _kubeadm join_ command that is printed on the last line. Save that command for later.
 
+```shell
+root@kube-adm-1:~# ./scripts/init_master.sh 
+<master/tokens> generated token: "8f960a.55d7658e6d20720f"
+<master/pki> created keys and certificates in "/etc/kubernetes/pki"
+<util/kubeconfig> created "/etc/kubernetes/admin.conf"
+<util/kubeconfig> created "/etc/kubernetes/kubelet.conf"
+<master/apiclient> created API client configuration
+<master/apiclient> created API client, waiting for the control plane to become ready
+<master/apiclient> all control plane components are healthy after 44.817139 seconds
+<master/apiclient> waiting for at least one node to register and become ready
+<master/apiclient> first node is ready after 0.503231 seconds
+<master/discovery> created essential addon: kube-discovery, waiting for it to become ready
+<master/discovery> kube-discovery is ready after 10.503283 seconds
+<master/addons> created essential addon: kube-proxy
+<master/addons> created essential addon: kube-dns
+
+Kubernetes master initialised successfully!
+
+You can now join any number of machines by running the following on each node:
+
+kubeadm join --token 8f960a.55d7658e6d20720f 10.128.0.4
+```
+
 ### Setting up the nodes
 
 Use the _kubeadm join_ command from the step before. Execute it on each node to let it join the Kubernetes cluster. If you want to add other nodes later on use that command as well.
+
+```shell
+root@kube-node-1:~# kubeadm join --token 8f960a.55d7658e6d20720f 10.128.0.4
+<util/tokens> validating provided token
+<node/discovery> created cluster info discovery client, requesting info from "http://10.128.0.4:9898/cluster-info/v1/?token-id=8f960a"
+<node/discovery> cluster info object received, verifying signature using given token
+<node/discovery> cluster info signature and contents are valid, will use API endpoints [https://10.128.0.4:443]
+<node/csr> created API client to obtain unique certificate for this node, generating keys and certificate signing request
+<node/csr> received signed certificate from the API server, generating kubelet configuration
+<util/kubeconfig> created "/etc/kubernetes/kubelet.conf"
+
+Node join complete:
+* Certificate signing request sent to master and response
+  received.
+* Kubelet informed of new secure connection details.
+
+Run 'kubectl get nodes' on the master to see this machine join.
+```
 
 ### Install overlay network
 
