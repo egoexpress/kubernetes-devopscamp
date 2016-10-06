@@ -12,8 +12,5 @@ gcloud compute instances create \
   --zone=us-central1-a
 
 for HOST in $HOSTS; do
-  gcloud compute copy-files scripts/install_packages.sh ${HOST}:~ --zone us-central1-a  
+  gcloud compute copy-files scripts deploy ${HOST}:~ --zone us-central1-a  
 done
-
-gcloud compute copy-files scripts/init_master.sh kube-adm-1:~ --zone us-central1-a  
-gcloud compute copy-files scripts/install_weave.sh kube-adm-1:~ --zone us-central1-a  
