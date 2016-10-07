@@ -1,13 +1,13 @@
 # kubernetes-devopscamp
 
-These scripts create (or destroy) 3 VM instances on Google Compute Engine (GCE). These VMs are used to demo the Kubernetes 
+These scripts create (or destroy) 3 VM instances on [Google Compute Engine](https://cloud.google.com/compute/) (GCE). These VMs are used to demo the Kubernetes 
 installation with kubeadm at [DevOps Camp Compact 2016](http://devops-camp.de) in Nuremberg.
 
 ## Setting the stage
 
 ### Setup the hosts
 
-This demo uses 3 hosts (**kube-adm-1** for the master, **kube-node-1** and **kube-node-2** for the nodes). Out of convience these are set up on GCE using the _create_instances.sh_ script. It requires a properly setup Google Compute Engine environment (i.e. the gcloud binary is present and can talk to Google services). The script also makes sure to copy all the other scripts to setup Kubernetes to each node. 
+This demo uses 3 hosts (**kube-adm-1** for the master, **kube-node-1** and **kube-node-2** for the nodes). Out of convience these are created on GCE using the _create_instances.sh_ script. It requires a properly setup Google Compute Engine environment (i.e. the gcloud binary is present and can talk to Google services). The script also makes sure to copy all the other scripts to setup Kubernetes to each node. 
 
 Feel free to use your own (existing) servers instead of creating some on GCE. The only requirement here: **The hosts have to run Ubuntu 16.04 LTS** (or CentOS 7, check the sources below if you want to use that). Just clone the repo to all your hosts and follow along.
 
@@ -17,7 +17,9 @@ Login to each of the 3 hosts and run _scripts/install_packages.sh_ to install th
 
 ### Setting up the master
 
-On the master (**kube-adm-1**) run _scripts/init_master.sh_ to initialize the Kubernetes master. Check the output for the _kubeadm join_ command that is printed on the last line. Save that command for later.
+On the master (**kube-adm-1**) run _scripts/init_master.sh_ to initialize the Kubernetes master. This also initializes the overlay network. It is needed to allow communication between containers, provide proper IP address allocation and DNS resolution. There are several choices but [Weave Net](http://weave.works) seems to be the easiest one to use. If you join nodes in the cluster later on the cluster itself will make sure that Weave Net is installed on them as well.
+
+Check the output for the _kubeadm join_ command in the penultimate line. Save that command for later.
 
 ```shell
 root@kube-adm-1:~# ./scripts/init_master.sh 
@@ -40,6 +42,7 @@ Kubernetes master initialised successfully!
 You can now join any number of machines by running the following on each node:
 
 kubeadm join --token 8f960a.55d7658e6d20720f 10.128.0.4
+daemonset "weave-net" created
 ```
 
 ### Setting up the nodes
@@ -64,9 +67,9 @@ Node join complete:
 Run 'kubectl get nodes' on the master to see this machine join.
 ```
 
-### Install overlay network
+### Profit
 
-We're almost there. To allow communication between containers, provide proper IP address allocation and DNS resolution an overlay network is required. There are several choices but [Weave Net](http://weave.works) seems to be the easiest one to use. Execute _scripts/install_weave.sh_ on the master (**kube-adm-1**) to set it up. If you join nodes in the cluster later on the cluster itself will make sure that Weave Net is installed on them as well.
+Here we are - you now have a running Kubernetes cluster with 2 nodes. By default pods will not be scheduled on the master itself, only on the nodes. If you want to use the master for some actual workload as well, execute _scripts/taint_master.sh_ on **kube-adm-1**.
 
 To make sure everything is set up and running use _kubectl get pods --all-namespaces_ to get the state of the system pods
 
@@ -80,14 +83,12 @@ kube-system   kube-discovery-982812725-1fd2g       1/1       Running   0        
 kube-system   kube-dns-2247936740-69368            3/3       Running   0          3m        10.32.0.2    kube-adm-1
 kube-system   kube-proxy-amd64-dvotl               1/1       Running   0          3m        10.128.0.4   kube-adm-1
 kube-system   kube-proxy-amd64-z9u3b               1/1       Running   0          2m        10.128.0.2   kube-node-1
+kube-system   kube-proxy-amd64-s7a3e               1/1       Running   0          2m        10.128.0.6   kube-node-2
 kube-system   kube-scheduler-kube-adm-1            1/1       Running   0          2m        10.128.0.4   kube-adm-1
 kube-system   weave-net-9gkv5                      2/2       Running   0          1m        10.128.0.2   kube-node-1
+kube-system   weave-net-1a4x1                      2/2       Running   0          1m        10.128.0.6   kube-node-2
 kube-system   weave-net-mcnei                      2/2       Running   0          1m        10.128.0.4   kube-adm-1
 ```
-
-### Profit
-
-Here we are - you now have a running Kubernetes cluster with 2 nodes. By default pods will not be scheduled on the master itself, only on the nodes. If you want to use the master for some actual workload as well, execute _scripts/taint_master.sh_ on **kube-adm-1**.
 
 ## Running nginx
 
