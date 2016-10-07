@@ -6,3 +6,4 @@ rm -rf /var/lib/kubelet /etc/kubernetes /var/lib/etcd /etc/cni;
 ip link set cbr0 down; ip link del cbr0;
 ip link set cni0 down; ip link del cni0;
 apt-get remove docker.io kubelet kubeadm kubectl kubernetes-cni
+apt-get autoremove
