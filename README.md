@@ -189,4 +189,4 @@ If you want to get rid of the cluster you set up using VMs on GCE, just execute 
 
 * [Installing Kubernetes on Linux with kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/)
 * [How we made Kubernetes insanely easy to install](http://blog.kubernetes.io/2016/09/how-we-made-kubernetes-easy-to-install.html)
-
+* [Setting up Kubernetes on Ubuntu (the old way)](http://kubernetes.io/docs/getting-started-guides/ubuntu/)
