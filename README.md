@@ -7,7 +7,7 @@ installation with kubeadm at [DevOps Camp Compact 2016](http://devops-camp.de) i
 
 ### Setup the hosts
 
-This demo uses 3 hosts (**kube-adm-1** for the master, **kube-node-1** and **kube-node-2** for the nodes). Out of convience these are created on GCE using the _create_instances.sh_ script. It requires a properly setup Google Compute Engine environment (i.e. the gcloud binary is present and can talk to Google services). The script also makes sure to copy all the other scripts to setup Kubernetes to each node. 
+This demo uses 3 hosts (**kube-master-1** for the master, **kube-node-1** and **kube-node-2** for the nodes). Out of convience these are created on GCE using the _create_instances.sh_ script. It requires a properly setup Google Compute Engine environment (i.e. the gcloud binary is present and can talk to Google services). The script also makes sure to copy all the other scripts to setup Kubernetes to each node. 
 
 Feel free to use your own (existing) servers instead of creating some on GCE. The only requirement here: **The hosts have to run Ubuntu 16.04 LTS** (or CentOS 7, check the sources below if you want to use that). Just clone the repo to all your hosts and follow along.
 
@@ -17,12 +17,12 @@ Login to each of the 3 hosts and run _scripts/install_packages.sh_ to install th
 
 ### Setting up the master
 
-On the master (**kube-adm-1**) run _scripts/init_master.sh_ to initialize the Kubernetes master. This also initializes the overlay network. It is needed to allow communication between containers, provide proper IP address allocation and DNS resolution. There are several choices but [Weave Net](http://weave.works) seems to be the easiest one to use. If you join nodes in the cluster later on the cluster itself will make sure that Weave Net is installed on them as well.
+On the master (**kube-master-1**) run _scripts/init_master.sh_ to initialize the Kubernetes master. This also initializes the overlay network. It is needed to allow communication between containers, provide proper IP address allocation and DNS resolution. There are several choices but [Weave Net](http://weave.works) seems to be the easiest one to use. If you join nodes in the cluster later on the cluster itself will make sure that Weave Net is installed on them as well.
 
 Check the output for the _kubeadm join_ command in the penultimate line. Save that command for later.
 
 ```shell
-root@kube-adm-1:~# ./scripts/init_master.sh 
+root@kube-master-1:~# ./scripts/init_master.sh 
 <master/tokens> generated token: "8f960a.55d7658e6d20720f"
 <master/pki> created keys and certificates in "/etc/kubernetes/pki"
 <util/kubeconfig> created "/etc/kubernetes/admin.conf"
@@ -69,33 +69,33 @@ Run 'kubectl get nodes' on the master to see this machine join.
 
 ### Profit
 
-Here we are - you now have a running Kubernetes cluster with 2 nodes. By default pods will not be scheduled on the master itself, only on the nodes. If you want to use the master for some actual workload as well, execute _scripts/taint_master.sh_ on **kube-adm-1**.
+Here we are - you now have a running Kubernetes cluster with 2 nodes. By default pods will not be scheduled on the master itself, only on the nodes. If you want to use the master for some actual workload as well, execute _scripts/taint_master.sh_ on **kube-master-1**.
 
 To make sure everything is set up and running use _kubectl get pods --all-namespaces_ to get the state of the system pods
 
 ```shell
-root@kube-adm-1:~# kubectl get pods --all-namespaces -o wide
+root@kube-master-1:~# kubectl get pods --all-namespaces -o wide
 NAMESPACE     NAME                                 READY     STATUS    RESTARTS   AGE       IP           NODE
-kube-system   etcd-kube-adm-1                      1/1       Running   0          2m        10.128.0.4   kube-adm-1
-kube-system   kube-apiserver-kube-adm-1            1/1       Running   2          2m        10.128.0.4   kube-adm-1
-kube-system   kube-controller-manager-kube-adm-1   1/1       Running   0          2m        10.128.0.4   kube-adm-1
-kube-system   kube-discovery-982812725-1fd2g       1/1       Running   0          3m        10.128.0.4   kube-adm-1
-kube-system   kube-dns-2247936740-69368            3/3       Running   0          3m        10.32.0.2    kube-adm-1
-kube-system   kube-proxy-amd64-dvotl               1/1       Running   0          3m        10.128.0.4   kube-adm-1
+kube-system   etcd-kube-master-1                      1/1       Running   0          2m        10.128.0.4   kube-master-1
+kube-system   kube-apiserver-kube-master-1            1/1       Running   2          2m        10.128.0.4   kube-master-1
+kube-system   kube-controller-manager-kube-master-1   1/1       Running   0          2m        10.128.0.4   kube-master-1
+kube-system   kube-discovery-982812725-1fd2g       1/1       Running   0          3m        10.128.0.4   kube-master-1
+kube-system   kube-dns-2247936740-69368            3/3       Running   0          3m        10.32.0.2    kube-master-1
+kube-system   kube-proxy-amd64-dvotl               1/1       Running   0          3m        10.128.0.4   kube-master-1
 kube-system   kube-proxy-amd64-z9u3b               1/1       Running   0          2m        10.128.0.2   kube-node-1
 kube-system   kube-proxy-amd64-s7a3e               1/1       Running   0          2m        10.128.0.6   kube-node-2
-kube-system   kube-scheduler-kube-adm-1            1/1       Running   0          2m        10.128.0.4   kube-adm-1
+kube-system   kube-scheduler-kube-master-1            1/1       Running   0          2m        10.128.0.4   kube-master-1
 kube-system   weave-net-9gkv5                      2/2       Running   0          1m        10.128.0.2   kube-node-1
 kube-system   weave-net-1a4x1                      2/2       Running   0          1m        10.128.0.6   kube-node-2
-kube-system   weave-net-mcnei                      2/2       Running   0          1m        10.128.0.4   kube-adm-1
+kube-system   weave-net-mcnei                      2/2       Running   0          1m        10.128.0.4   kube-master-1
 ```
 
 ## Running nginx
 
-Now that you have a new and shiny Kubernetes cluster it's time to put it into use. The demo will deploy two nginx instances and a corresponding service. Use _scripts/deploy_nginx.sh_ on **kube-adm-1** to execute the required steps.
+Now that you have a new and shiny Kubernetes cluster it's time to put it into use. The demo will deploy two nginx instances and a corresponding service. Use _scripts/deploy_nginx.sh_ on **kube-master-1** to execute the required steps.
 
 ```shell
-root@kube-adm-1:~# ./scripts/deploy_nginx.sh 
+root@kube-master-1:~# ./scripts/deploy_nginx.sh 
 deployment "devops-nginx" created
 service "devops-nginx" exposed
 Name:                   devops-nginx
@@ -119,7 +119,7 @@ Get the public IPs of your nodes. In this example the IPs are 108.59.81.224 and 
 ```shell
 $ gcloud compute instances list
 NAME         ZONE           MACHINE_TYPE   PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP      STATUS
-kube-adm-1   us-central1-a  n1-standard-1               10.128.0.4   130.211.176.210  RUNNING
+kube-master-1   us-central1-a  n1-standard-1               10.128.0.4   130.211.176.210  RUNNING
 kube-node-1  us-central1-a  n1-standard-1               10.128.0.2   108.59.81.224    RUNNING
 kube-node-2  us-central1-a  n1-standard-1               10.128.0.3   8.34.214.125     RUNNING
 ```
@@ -128,16 +128,16 @@ Now first check all the running pods and then connect to nginx using curl. Use o
 As you'll see, by just connecting to one IP your request will be route to any of the pods, even if it runs on another node. How's that for high availability?
 
 ```shell
-root@kube-adm-1:~# kubectl get pods
+root@kube-master-1:~# kubectl get pods
 NAME                            READY     STATUS    RESTARTS   AGE
 devops-nginx-2330576289-1gepk   1/1       Running   0          3m
 devops-nginx-2330576289-t7vjj   1/1       Running   0          3m
-root@kube-adm-1:~# curl http://108.59.81.224:32025
+root@kube-master-1:~# curl http://108.59.81.224:32025
 <h2>
 This is Nginx running on
 devops-nginx-2330576289-t7vjj:80
 </h2>
-root@kube-adm-1:~# curl http://108.59.81.224:32025
+root@kube-master-1:~# curl http://108.59.81.224:32025
 <h2>
 This is Nginx running on
 devops-nginx-2330576289-1gepk:80
@@ -153,11 +153,11 @@ Now that we have just two pods running we want more. Scale up! Use _scripts/scal
 As you may have noticed the port for the service created above (32025 in the example) is chosen randomly (within the range of 30000-32767). If you want to have a fixed port (that must also be within this range) you have to use a service configuration file as kubectl doesn't have an option for that. Use _kubectl create_ with the file _deploy/devops-nginx-svc.yaml_ to set up the service on port 31000.
 
 ```shell
-root@kube-adm-1:~# kubectl delete svc devops-nginx
+root@kube-master-1:~# kubectl delete svc devops-nginx
 service "devops-nginx" deleted
-root@kube-adm-1:~# kubectl create -f deploy/devops-nginx-svc.yaml 
+root@kube-master-1:~# kubectl create -f deploy/devops-nginx-svc.yaml 
 service "devops-nginx" created
-root@kube-adm-1:~# kubectl describe svc devops-nginx
+root@kube-master-1:~# kubectl describe svc devops-nginx
 Name:                   devops-nginx
 Namespace:              default
 Labels:                 name=devops-nginx
@@ -169,12 +169,12 @@ NodePort:               <unset> 31000/TCP
 Endpoints:              10.40.0.1:80,10.40.0.2:80
 Session Affinity:       None
 No events.
-root@kube-adm-1:~# curl http://108.59.81.224:31000
+root@kube-master-1:~# curl http://108.59.81.224:31000
 <h2>
 This is Nginx running on
 devops-nginx-2330576289-1gepk:80
 </h2>
-root@kube-adm-1:~# curl http://108.59.81.224:31000
+root@kube-master-1:~# curl http://108.59.81.224:31000
 <h2>
 This is Nginx running on
 devops-nginx-2330576289-t7vjj:80
