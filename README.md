@@ -185,6 +185,9 @@ devops-nginx-2330576289-t7vjj:80
 
 If you want to get rid of the cluster you set up using VMs on GCE, just execute _delete_instances.sh_ to tear down the nodes. If you used your own nodes use _scripts/deinstall_kubernetes.sh_ to get rid of Kubernetes. Warning: This deinstalls Docker itself as well, so make sure you want that. Otherwise change the script accordingly.
 
+If you just want to reset the Kubernetes environment and start over again use the script _scripts/reset_kubernetes.sh_. 
+*Note:* The command used herein was introduced in kubeadm 1.5, so this will not work in kubeadm 1.4.
+
 ## Sources/Further reading
 
 * [Installing Kubernetes on Linux with kubeadm](http://kubernetes.io/docs/getting-started-guides/kubeadm/)
