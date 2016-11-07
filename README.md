@@ -1,7 +1,8 @@
 # kubernetes-devopscamp
 
-These scripts create (or destroy) 3 VM instances on [Google Compute Engine](https://cloud.google.com/compute/) (GCE). These VMs are used to demo the Kubernetes 
-installation with kubeadm at [DevOps Camp Compact 2016](http://devops-camp.de) in Nuremberg.
+This documentaton and the contained scripts create VM instances on [Google Compute Engine](https://cloud.google.com/compute/) (GCE) and demo the Kubernetes installation with kubeadm. This was presented in a talk at [DevOps Camp Compact 2016](http://devops-camp.de) in Nuremberg.
+
+You can also use these scripts to setup Kubernetes in a quick way on your own machines, be it physical ones, VMs or instances on some cloud provider like AWS.
 
 ## Setting the stage
 
