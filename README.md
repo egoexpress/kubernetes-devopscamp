@@ -1,8 +1,10 @@
 # kubernetes-devopscamp
 
-This documentaton and the contained scripts create VM instances on [Google Compute Engine](https://cloud.google.com/compute/) (GCE) and demo the Kubernetes installation with kubeadm. This was presented in a talk at [DevOps Camp Compact 2016](http://devops-camp.de) in Nuremberg.
+This documentaton and the contained scripts create VM instances on [Google Compute Engine](https://cloud.google.com/compute/) (GCE) and demo the Kubernetes installation with _kubeadm_. This was presented in a talk at [DevOps Camp Compact 2016](http://devops-camp.de) in Nuremberg.
 
-You can also use these scripts to setup Kubernetes in a quick way on your own machines, be it physical ones, VMs or instances on some cloud provider like AWS.
+You can also use these scripts to setup Kubernetes in a quick way on your own machines, be it physical ones, VMs or instances on some cloud provider like AWS. 
+
+The demo was done using Kubernetes 1.4 (which introducted the _kubeadm_ tool), but should work with newer versions of Kubernetes as well. At the time of this writing (Jan 2017) _kubeadm_ is still in alpha, not recommended for production usage and doesn't support load balancers. So, handle with care!
 
 ## Setting the stage
 
